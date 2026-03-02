@@ -25,23 +25,37 @@ void (async function main() {
   const srv = await net.listen("0.0.0.0:80", {
     async fetch(req) {
       const link = new URL(req.url)
-      if(link.pathname === "/live-cookie"){
-        const ids = await Promise.all(['DedeUserID','buvid3'].map(k=>cookieStore.get(k).then(v=>v.value)))
+      if (link.pathname === "/live-cookie") {
+        const ids = await Promise.all(
+          ["DedeUserID", "buvid3"].map((k) =>
+            cookieStore.get(k).then((v) => v.value),
+          ),
+        )
         return new Response(JSON.stringify(ids))
       }
       const jct = await cookieStore.get("bili_jct")
-      if(link.pathname === "/csrf2"){
-        const uid = await cookieStore.get('DedeUserID').then(v=>v.value)
-        const devId = localStorage.getItem('im_deviceid_'+uid)
-        return new Response(JSON.stringify([jct.value,uid,devId]))
+      if (link.pathname === "/csrf2") {
+        const uid = await cookieStore.get("DedeUserID").then((v) => v.value)
+        const devId = localStorage.getItem("im_deviceid_" + uid)
+        return new Response(JSON.stringify([jct.value, uid, devId]))
       }
-      return new Response(jct.value);
+      return new Response(jct.value)
     },
-  });
+  })
   await net.http_proxy("0.0.0.0:1080", {})
   console.log("代理启动成功")
   console.log("连接成功")
-  setTimeout(()=>{ location.reload() },24*60*60*1e3)
+  setTimeout(
+    () => {
+      location.reload()
+    },
+    24 * 60 * 60 * 1e3,
+  )
 })()
-
 ```
+
+# Todo
+
+- [x] 会话列表接口
+- [ ] 会话消息接口 [./msgs.go](./msgs.go)
+- [x] 发送消息接口
