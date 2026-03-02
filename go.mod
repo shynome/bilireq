@@ -4,6 +4,7 @@ go 1.25.5
 
 require (
 	github.com/go-resty/resty/v2 v2.17.2
+	github.com/google/go-querystring v1.2.0
 	github.com/shynome/err0 v0.2.1
 )
 
