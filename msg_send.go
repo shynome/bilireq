@@ -21,8 +21,7 @@ type MsgSendParams struct {
 	Content      any            `url:"-"`                               //
 	CSRF         string         `url:"csrf"`                            //
 	DeviceID     string         `url:"msg[dev_id]"`                     //
-	BuildVersion int64          `url:"build,omitempty"`                 // 客户端内部版本号
-	MobiApp      string         `url:"mobi_app,omitempty"`              // 平台标识. 可为 web 等
+	ClientInfo
 }
 
 // 说是需要 wbi 签名, 但其实不需要, 只需要 csrf 就够了
@@ -62,10 +61,11 @@ type MsgContent struct {
 	Content string `json:"content"`
 }
 
+// 私信消息类型
 type MsgSendType int64
 
 const (
-	MsgSendTypeText   MsgSendType = 1
-	MsgSendTypeImg    MsgSendType = 2
-	MsgSendTypeRevoke MsgSendType = 5
+	MsgSendTypeText   MsgSendType = 1 // 文字消息
+	MsgSendTypeImg    MsgSendType = 2 // 图片消息
+	MsgSendTypeRevoke MsgSendType = 5 // 撤回消息
 )
