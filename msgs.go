@@ -31,6 +31,27 @@ func (api *Client) Msgs(params MsgsGetParams) (resp Response[SessionMsgs], err e
 	return
 }
 
+func (api *Client) YieldMsgs(params MsgsGetParams) func(yield func(int64, *SessionMsgs) bool) {
+	return func(yield func(int64, *SessionMsgs) bool) {
+		seqno := params.BeginSeqNo
+		for {
+			params.EndSeqNo = seqno
+			resp, err := api.Msgs(params)
+			if err != nil {
+				return
+			}
+			d := resp.Data
+			if !yield(d.MinSeqNo, &d) {
+				return
+			}
+			seqno = d.MinSeqNo
+			if d.HasMore == 0 {
+				return
+			}
+		}
+	}
+}
+
 type SessionMsgs struct {
 	Messages   []PrivateMsgItem `json:"messages"`
 	HasMore    int64            `json:"has_more"`

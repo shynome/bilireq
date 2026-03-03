@@ -21,3 +21,17 @@ func TestMsgs(t *testing.T) {
 		log.Println("[", m.MsgSeqNo, "]", m.Sender, ":", s)
 	}
 }
+
+func TestYield(t *testing.T) {
+	f := bclient.YieldMsgs(bilireq.MsgsGetParams{
+		Talker: bilireq.TalkerUser(msgReceiver),
+	})
+	for minSeqno, v := range f {
+		log.Println("mmmmmmmmmmmmmmmin", minSeqno)
+		for _, m := range v.Messages {
+			var s = m.Content
+			log.Println("[", m.MsgSeqNo, "]", m.Sender, ":", s)
+		}
+	}
+	log.Println("8")
+}
