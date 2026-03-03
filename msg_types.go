@@ -4,6 +4,10 @@ import (
 	"math/big"
 )
 
+func TalkerUser(uid int64) Talker {
+	return Talker{ID: uid, SessionType: SessionTalkerTypeUser}
+}
+
 type Talker struct {
 	ID          int64             `url:"talker_id"`    // 聊天对象的id. session_type 为 1 时表示用户 mid，为 2 时表示粉丝团 id
 	SessionType SessionTalkerType `url:"session_type"` // 聊天对象的类型

@@ -2,6 +2,7 @@ package bilireq
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/go-querystring/query"
@@ -11,7 +12,7 @@ import (
 
 type MsgSendParams struct {
 	Sender       string            `url:"msg[sender_uid]"`                 //
-	Receiver     string            `url:"msg[receiver_id]"`                //
+	Receiver     int64             `url:"msg[receiver_id]"`                //
 	ReceiverType SessionTalkerType `url:"msg[receiver_type]"`              // 接收者类型
 	MsgType      MsgSendType       `url:"msg[msg_type]"`                   // 消息类型*. 此接口仅支持传入 1、2 或 5
 	MsgStatus    int64             `url:"msg[msg_status],omitempty"`       //
@@ -47,18 +48,14 @@ func (api *Client) MsgSend(params MsgSendParams) (resp Response[json.RawMessage]
 	return
 }
 
-func (api *Client) MsgSend2User(uid string, msg string) (resp Response[json.RawMessage], err error) {
+func (api *Client) MsgSend2User(uid int64, msg string) (resp Response[json.RawMessage], err error) {
 	p := MsgSendParams{
 		Receiver:     uid,
 		ReceiverType: SessionTalkerTypeUser,
 		MsgType:      MsgSendTypeText,
-		Content:      MsgContent{Content: msg},
+		Content:      MessageText{Content: msg},
 	}
 	return api.MsgSend(p)
-}
-
-type MsgContent struct {
-	Content string `json:"content"`
 }
 
 // 私信消息类型
@@ -69,3 +66,21 @@ const (
 	MsgSendTypeImg    MsgSendType = 2 // 图片消息
 	MsgSendTypeRevoke MsgSendType = 5 // 撤回消息
 )
+
+func (msg *PrivateMsgItem) Message() (fmt.Stringer, error) {
+	switch msg.MsgType {
+	case MsgSendTypeText:
+		var txt MessageText
+		err := json.Unmarshal([]byte(msg.Content), &txt)
+		return &txt, err
+	}
+	return nil, nil
+}
+
+type MessageText struct {
+	Content string `json:"content"`
+}
+
+func (m *MessageText) String() string {
+	return m.Content
+}

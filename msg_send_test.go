@@ -1,12 +1,11 @@
 package bilireq_test
 
 import (
-	"os"
 	"testing"
 )
 
 func TestMsgSend(t *testing.T) {
-	resp, err := bclient.MsgSend2User(os.Getenv("MSG_RECEIVER"), "hello world")
+	resp, err := bclient.MsgSend2User(msgReceiver, "hello world")
 	if err != nil {
 		t.Error(err)
 		return
