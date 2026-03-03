@@ -1,3 +1,9 @@
+## bilireq
+
+**自用, 接口尚未稳定, 随时可能变动**
+
+使用浏览器代替用户发起请求, 实现自动化, 无需实现cookie刷新机制
+
 ## UserScript
 
 ```js
@@ -57,5 +63,5 @@ void (async function main() {
 # Todo
 
 - [x] 会话列表接口
-- [ ] 会话消息接口 [./msgs.go](./msgs.go)
+- [x] 会话消息接口
 - [x] 发送消息接口
