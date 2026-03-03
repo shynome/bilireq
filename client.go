@@ -64,6 +64,10 @@ func New(host string) (_ *Client) {
 	return api
 }
 
+func (api *Client) SetDebug(v bool) {
+	api.client.SetDebug(v)
+}
+
 type Response[T any] struct {
 	Code    int    `json:"code"`
 	Data    T      `json:"data"`

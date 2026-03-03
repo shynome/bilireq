@@ -22,12 +22,35 @@ func (api *Client) Sessions(params SessionsGetParams) (resp Response[SessionList
 	if err != nil {
 		return
 	}
-	_ = p
 	_, err = api.client.R().
 		SetQueryParamsFromValues(p).
 		SetResult(&resp).
 		Get("https://api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions")
 	return
+}
+
+func (api *Client) YieldSessions(params SessionsGetParams) func(func(SessionList) bool) {
+	return func(yield func(SessionList) bool) {
+		next := params.EndTs
+		for {
+			params.EndTs = next
+			resp, err := api.Sessions(params)
+			if err != nil {
+				return
+			}
+			d := resp.Data
+			if !yield(d) {
+				return
+			}
+			if d.HasMore == 0 {
+				return
+			}
+			if len(d.List) == 0 {
+				return
+			}
+			next = d.List[len(d.List)-1].SessionTs
+		}
+	}
 }
 
 type SessionList struct {

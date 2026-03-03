@@ -9,19 +9,20 @@ func TalkerUser(uid int64) Talker {
 }
 
 type Talker struct {
-	ID          int64             `url:"talker_id"`    // 聊天对象的id. session_type 为 1 时表示用户 mid，为 2 时表示粉丝团 id
-	SessionType SessionTalkerType `url:"session_type"` // 聊天对象的类型
+	ID          int64             `json:"talker_id" url:"talker_id"`       // 聊天对象的id. session_type 为 1 时表示用户 mid，为 2 时表示粉丝团 id
+	SessionType SessionTalkerType `json:"session_type" url:"session_type"` // 聊天对象的类型
 }
 
 // 会话对象
 type MsgSession struct {
 	Talker
-	AtSeqNo           int64              `json:"at_seqno"`             // 最近一次未读at自己的消息的序列号. 在粉丝团会话中有效，若没有未读的 at 自己的消息则为 0
+	AtSeqNo           uint64             `json:"at_seqno"`             // 最近一次未读at自己的消息的序列号. 在粉丝团会话中有效，若没有未读的 at 自己的消息则为 0
 	TopTs             int64              `json:"top_ts"`               // 置顶该会话的时间. 微秒级时间戳；若未置顶该会话则为 0；用于判断是否置顶了会话
 	GroupName         string             `json:"group_name"`           // 粉丝团名称. 在粉丝团会话中有效，其他会话中为空字符串
 	GroupCover        string             `json:"group_cover"`          // 粉丝团头像. 在粉丝团会话中有效，其他会话中为空字符串
 	IsFollow          int64              `json:"is_follow"`            // 是否关注了对方. 在用户会话中有效，系统会话中为 1, 其他会话中为 0
 	IsDnd             int64              `json:"is_dnd"`               // 是否对会话设置了免打扰
+	AckSeqNo          uint64             `json:"ack_seqno"`            // 最近一次已读的消息序列号. 用于快速跳转到首条未读的消息
 	AckTs             int64              `json:"ack_ts"`               // 最近一次已读时间
 	SessionTs         int64              `json:"session_ts"`           // 会话时间
 	UnreadCount       int64              `json:"unread_count"`         // 未读消息数
@@ -29,7 +30,7 @@ type MsgSession struct {
 	GroupType         GroupType          `json:"group_type"`           // 粉丝团类型. 在粉丝团时有效
 	CanFold           int64              `json:"can_fold"`             // 会话是否可被折叠入未关注人消息. 在用户会话中有效
 	Status            int64              `json:"status"`               // 会话状态. 详细信息有待补充
-	MaxSeqNo          int64              `json:"max_seqno"`            // 最近一条消息的序列号
+	MaxSeqNo          uint64             `json:"max_seqno"`            // 最近一条消息的序列号
 	NewPushMsg        int64              `json:"new_push_msg"`         // 是否有新推送的消息
 	Setting           int64              `json:"setting"`              // 推送设置. 0：接收推送; 1：不接收推送; 2：（？）;
 	IsGuardian        int64              `json:"is_guardian"`          // 自己是否为对方的骑士（？）. 在用户会话中有效. 0：否; 2：是（？）;
@@ -38,6 +39,13 @@ type MsgSession struct {
 	SystemMsgType     SystemMsgType      `json:"system_msg_type"`      // 系统会话类型
 	AccountInfo       *SystemAccountInfo `json:"account_info"`         // 会话信息. 仅在系统会话中出现
 	BizMsgUnreadCount int64              `json:"biz_msg_unread_count"` // 未读通知消息数
+}
+
+func (m *MsgSession) NoNew() bool {
+	if m.LastMsg == nil {
+		return false
+	}
+	return m.LastMsg.MsgSeqNo == m.AckSeqNo
 }
 
 type SessionTalkerType int64 // 聊天对象的类型
@@ -81,7 +89,7 @@ type PrivateMsgItem struct {
 	Receiver       int64             `json:"receiver_id"`      // 接收者id. receiver_type 为 1 时表示用户 mid，为 2 时表示粉丝团 id
 	MsgType        MsgSendType       `json:"msg_type"`         // 消息类型
 	Content        string            `json:"content"`          // 消息内容. 私信内容对象经过 JSON 序列化后的文本
-	MsgSeqNo       int64             `json:"msg_seqno"`        // 消息序列号. 按照时间顺序从小到大
+	MsgSeqNo       uint64            `json:"msg_seqno"`        // 消息序列号. 按照时间顺序从小到大
 	Timestamp      int64             `json:"timestamp"`        // 消息发送时间. 秒级时间戳
 	AtUIDs         []int64           `json:"at_uids"`          // at的成员mid. 在粉丝团时有效；此项为 null 或 [0] 均表示没有 at 成员
 	MsgKey         big.Int           `json:"msg_key"`          // 消息唯一id. 部分库在解析JSON对象中的大数时存在数值的精度丢失问题，因此在处理此字段时可能会出现问题，建议使用修复了这一问题的库（如将大数转换成文本）
