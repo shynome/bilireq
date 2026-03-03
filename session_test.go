@@ -12,7 +12,7 @@ func TestSession(t *testing.T) {
 	idStr := os.Getenv("MSG_RECEIVER")
 	id, _ := strconv.Atoi(idStr)
 	resp, err := bclient.Session(bilireq.SessionGetParams{
-		Talker: bilireq.Talker{ID: int64(id), SessionType: bilireq.MsgSessionTypeUser},
+		Talker: bilireq.Talker{ID: int64(id), SessionType: bilireq.SessionTalkerTypeUser},
 	})
 	if err != nil {
 		t.Error(err)

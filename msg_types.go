@@ -4,10 +4,14 @@ import (
 	"math/big"
 )
 
+type Talker struct {
+	ID          int64             `url:"talker_id"`    // 聊天对象的id. session_type 为 1 时表示用户 mid，为 2 时表示粉丝团 id
+	SessionType SessionTalkerType `url:"session_type"` // 聊天对象的类型
+}
+
 // 会话对象
 type MsgSession struct {
-	TalkerID          int64              `json:"talker_id"`            // 聊天对象的id. session_type 为 1 时表示用户 mid，为 2 时表示粉丝团 id
-	SessionType       MsgSessionType     `json:"session_type"`         // 聊天对象的类型
+	Talker
 	AtSeqNo           int64              `json:"at_seqno"`             // 最近一次未读at自己的消息的序列号. 在粉丝团会话中有效，若没有未读的 at 自己的消息则为 0
 	TopTs             int64              `json:"top_ts"`               // 置顶该会话的时间. 微秒级时间戳；若未置顶该会话则为 0；用于判断是否置顶了会话
 	GroupName         string             `json:"group_name"`           // 粉丝团名称. 在粉丝团会话中有效，其他会话中为空字符串
@@ -32,11 +36,11 @@ type MsgSession struct {
 	BizMsgUnreadCount int64              `json:"biz_msg_unread_count"` // 未读通知消息数
 }
 
-type MsgSessionType int64 // 聊天对象的类型
+type SessionTalkerType int64 // 聊天对象的类型
 
 const (
-	MsgSessionTypeUser MsgSessionType = 1 // 用户
-	MsgSessionTypeFans MsgSessionType = 2 // 粉丝团
+	SessionTalkerTypeUser SessionTalkerType = 1 // 用户
+	SessionTalkerTypeFans SessionTalkerType = 2 // 粉丝团
 )
 
 type GroupType int64 // 粉丝团类型
@@ -68,20 +72,20 @@ type SystemAccountInfo struct {
 
 // 私信主体对象
 type PrivateMsgItem struct {
-	Sender         int64          `json:"sender_uid"`       // 发送者mid
-	ReceiverType   MsgSessionType `json:"receiver_type"`    // 接收者类型
-	Receiver       int64          `json:"receiver_id"`      // 接收者id. receiver_type 为 1 时表示用户 mid，为 2 时表示粉丝团 id
-	MsgType        MsgSendType    `json:"msg_type"`         // 消息类型
-	Content        string         `json:"content"`          // 消息内容. 私信内容对象经过 JSON 序列化后的文本
-	MsgSeqNo       int64          `json:"msg_seqno"`        // 消息序列号. 按照时间顺序从小到大
-	Timestamp      int64          `json:"timestamp"`        // 消息发送时间. 秒级时间戳
-	AtUIDs         []int64        `json:"at_uids"`          // at的成员mid. 在粉丝团时有效；此项为 null 或 [0] 均表示没有 at 成员
-	MsgKey         big.Int        `json:"msg_key"`          // 消息唯一id. 部分库在解析JSON对象中的大数时存在数值的精度丢失问题，因此在处理此字段时可能会出现问题，建议使用修复了这一问题的库（如将大数转换成文本）
-	MsgStatus      MsgStatus      `json:"msg_status"`       // 消息状态
-	SysCancel      bool           `json:"sys_cancel"`       // 是否为系统撤回
-	NotifyCode     string         `json:"notify_code"`      // 通知代码. 发送通知时使用，以下划线 _ 分割，第 1 项表示主业务 id，第 2 项表示子业务 id；若这条私信非通知则为空文本；详细信息有待补充
-	NewFaceVersion int64          `json:"new_face_version"` // 表情包版本. 为 0 或无此项表示旧版表情包，此时 B 站会自动转换成新版表情包，例如 [doge] -> [tv_doge]；1 为新版
-	MsgSource      MsgSource      `json:"msg_source"`       // 消息来源
+	Sender         int64             `json:"sender_uid"`       // 发送者mid
+	ReceiverType   SessionTalkerType `json:"receiver_type"`    // 接收者类型
+	Receiver       int64             `json:"receiver_id"`      // 接收者id. receiver_type 为 1 时表示用户 mid，为 2 时表示粉丝团 id
+	MsgType        MsgSendType       `json:"msg_type"`         // 消息类型
+	Content        string            `json:"content"`          // 消息内容. 私信内容对象经过 JSON 序列化后的文本
+	MsgSeqNo       int64             `json:"msg_seqno"`        // 消息序列号. 按照时间顺序从小到大
+	Timestamp      int64             `json:"timestamp"`        // 消息发送时间. 秒级时间戳
+	AtUIDs         []int64           `json:"at_uids"`          // at的成员mid. 在粉丝团时有效；此项为 null 或 [0] 均表示没有 at 成员
+	MsgKey         big.Int           `json:"msg_key"`          // 消息唯一id. 部分库在解析JSON对象中的大数时存在数值的精度丢失问题，因此在处理此字段时可能会出现问题，建议使用修复了这一问题的库（如将大数转换成文本）
+	MsgStatus      MsgStatus         `json:"msg_status"`       // 消息状态
+	SysCancel      bool              `json:"sys_cancel"`       // 是否为系统撤回
+	NotifyCode     string            `json:"notify_code"`      // 通知代码. 发送通知时使用，以下划线 _ 分割，第 1 项表示主业务 id，第 2 项表示子业务 id；若这条私信非通知则为空文本；详细信息有待补充
+	NewFaceVersion int64             `json:"new_face_version"` // 表情包版本. 为 0 或无此项表示旧版表情包，此时 B 站会自动转换成新版表情包，例如 [doge] -> [tv_doge]；1 为新版
+	MsgSource      MsgSource         `json:"msg_source"`       // 消息来源
 }
 
 // 消息状态

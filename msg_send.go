@@ -10,17 +10,17 @@ import (
 )
 
 type MsgSendParams struct {
-	Sender       string         `url:"msg[sender_uid]"`                 //
-	Receiver     string         `url:"msg[receiver_id]"`                //
-	ReceiverType MsgSessionType `url:"msg[receiver_type]"`              // 接收者类型
-	MsgType      MsgSendType    `url:"msg[msg_type]"`                   // 消息类型*. 此接口仅支持传入 1、2 或 5
-	MsgStatus    int64          `url:"msg[msg_status],omitempty"`       //
-	FaceVersion  int64          `url:"msg[new_face_version],omitempty"` //
-	Timestamp    int64          `url:"msg[timestamp]"`                  //
-	ContentStr   string         `url:"msg[content]"`                    //
-	Content      any            `url:"-"`                               //
-	CSRF         string         `url:"csrf"`                            //
-	DeviceID     string         `url:"msg[dev_id]"`                     //
+	Sender       string            `url:"msg[sender_uid]"`                 //
+	Receiver     string            `url:"msg[receiver_id]"`                //
+	ReceiverType SessionTalkerType `url:"msg[receiver_type]"`              // 接收者类型
+	MsgType      MsgSendType       `url:"msg[msg_type]"`                   // 消息类型*. 此接口仅支持传入 1、2 或 5
+	MsgStatus    int64             `url:"msg[msg_status],omitempty"`       //
+	FaceVersion  int64             `url:"msg[new_face_version],omitempty"` //
+	Timestamp    int64             `url:"msg[timestamp]"`                  //
+	ContentStr   string            `url:"msg[content]"`                    //
+	Content      any               `url:"-"`                               //
+	CSRF         string            `url:"csrf"`                            //
+	DeviceID     string            `url:"msg[dev_id]"`                     //
 	ClientInfo
 }
 
@@ -50,7 +50,7 @@ func (api *Client) MsgSend(params MsgSendParams) (resp Response[json.RawMessage]
 func (api *Client) MsgSend2User(uid string, msg string) (resp Response[json.RawMessage], err error) {
 	p := MsgSendParams{
 		Receiver:     uid,
-		ReceiverType: MsgSessionTypeUser,
+		ReceiverType: SessionTalkerTypeUser,
 		MsgType:      MsgSendTypeText,
 		Content:      MsgContent{Content: msg},
 	}
